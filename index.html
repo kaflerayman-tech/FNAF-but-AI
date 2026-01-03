@@ -3,110 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FNAF 2026 Edition</title>
+    <title>FNAF 2026: Enhanced Office</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: white; }
         
-        /* Start Screen */
-        #start-screen {
+        /* Start & Death Screens */
+        .overlay {
             position: fixed; inset: 0; background: black;
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
         }
-        button { padding: 15px 30px; font-size: 1.5rem; cursor: pointer; background: #222; color: white; border: 2px solid white; }
+        #death-screen { display: none; background: linear-gradient(red, black); }
+        button { padding: 15px 30px; font-size: 1.5rem; cursor: pointer; background: #222; color: white; border: 2px solid white; margin-top: 20px; }
 
         /* Game Viewport */
         #game-container { display: none; width: 100vw; height: 100vh; position: relative; overflow: hidden; }
 
-        /* Panning Office */
+        /* Panning Office - Narrowed width to keep doors closer */
         #office {
-            position: absolute; width: 180vw; height: 100vh; left: -40vw;
+            position: absolute; width: 140vw; height: 100vh; left: -20vw;
             background: radial-gradient(circle, #222 0%, #000 80%);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 5vw;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 10vw;
             transition: transform 0.1s ease-out;
         }
 
-        /* Large Doors */
-        .door-container { width: 350px; height: 90vh; position: relative; display: flex; flex-direction: column; justify-content: center; }
-        .door-frame { width: 100%; height: 100%; border: 15px solid #1a1a1a; background: #050505; position: relative; }
+        /* Large, Close Doors */
+        .door-container { width: 400px; height: 95vh; position: relative; display: flex; align-items: center; }
+        .door-frame { width: 100%; height: 100%; border: 20px solid #1a1a1a; background: #050505; position: relative; }
         .door-panel { 
             position: absolute; top: 0; left: 0; width: 100%; height: 0%; 
-            background: linear-gradient(#333, #111); transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 5;
+            background: linear-gradient(#444, #111); transition: height 0.4s ease-in; z-index: 5;
         }
         .door-panel.closed { height: 100%; }
 
-        /* Center Monitor Area */
+        /* Central Monitor Area */
         #monitor-desk {
-            width: 500px; height: 350px; border: 10px solid #333; background: #111;
-            display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px #000 inset;
+            width: 450px; height: 300px; border: 12px solid #333; background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* Controls */
+        /* Buttons - Placed directly on the door frames */
         .door-btn { 
-            position: absolute; top: 50%; background: #800; width: 60px; height: 80px; 
-            cursor: pointer; border: 4px solid #400; z-index: 10; display: flex; align-items: center; justify-content: center;
+            position: absolute; background: #a00; width: 50px; height: 70px; 
+            cursor: pointer; border: 4px solid #500; z-index: 10; text-align: center; line-height: 70px; font-weight: bold;
         }
-        .door-btn:active { background: #f00; }
+        .left-btn { left: -70px; }
+        .right-btn { right: -70px; }
 
-        /* Camera Toggle Bar (Bottom) */
+        /* Camera Toggle Bar */
         #cam-toggle {
-            position: fixed; bottom: 0; left: 25%; width: 50%; height: 40px;
+            position: fixed; bottom: 0; left: 30%; width: 40%; height: 35px;
             background: rgba(255,255,255,0.1); border: 2px solid #fff; border-bottom: none;
-            z-index: 50; cursor: pointer; text-align: center; line-height: 40px;
-            transition: background 0.2s;
+            z-index: 50; cursor: pointer; text-align: center; line-height: 35px;
         }
-        #cam-toggle:hover { background: rgba(255,255,255,0.3); }
-
-        /* Slide-up Camera View */
         #camera-view {
             position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 40; transition: top 0.4s ease-in-out;
-            display: flex; align-items: center; justify-content: center;
-            border-top: 5px solid #fff;
+            background: #000; z-index: 40; transition: top 0.3s ease-in-out; border-top: 5px solid #fff;
         }
         #camera-view.open { top: 0; }
-        .static { width: 100%; height: 100%; background: url('media.giphy.com'); opacity: 0.1; pointer-events: none; position: absolute; }
-
-        #ui { position: fixed; top: 20px; left: 20px; font-size: 1.5rem; z-index: 60; text-shadow: 2px 2px #000; }
+        #ui { position: fixed; top: 20px; left: 20px; font-size: 1.5rem; z-index: 60; }
     </style>
 </head>
 <body>
 
-    <div id="start-screen">
-        <h1>FNAF: REDUX 2026</h1>
+    <div id="start-screen" class="overlay">
+        <h1>FNAF: 2026 EDITION</h1>
         <button onclick="startGame()">START NIGHT</button>
+    </div>
+
+    <div id="death-screen" class="overlay">
+        <h1 style="color: white; font-size: 4rem;">TOO SLOW</h1>
+        <p>You ran out of power.</p>
+        <button onclick="location.reload()">RESTART NIGHT</button>
     </div>
 
     <div id="game-container">
         <div id="ui">POWER: <span id="power">100</span>%</div>
         
         <div id="office">
-            <!-- Left Side -->
+            <!-- Left Door -->
             <div class="door-container">
-                <div class="door-btn" style="left: -80px;" onclick="toggleDoor('left')">DOOR</div>
+                <div class="door-btn left-btn" onclick="toggleDoor('left')">DR</div>
                 <div id="door-left" class="door-panel"></div>
                 <div class="door-frame"></div>
             </div>
 
-            <!-- Center Desk -->
+            <!-- Monitor Desk -->
             <div id="monitor-desk">
-                <h2 style="color: #444;">SYSTEM READY</h2>
+                <h3 style="color: #222;">REMOTE ACCESS</h3>
             </div>
 
-            <!-- Right Side -->
+            <!-- Right Door (Now closer) -->
             <div class="door-container">
-                <div class="door-btn" style="right: -80px;" onclick="toggleDoor('right')">DOOR</div>
                 <div id="door-right" class="door-panel"></div>
                 <div class="door-frame"></div>
+                <div class="door-btn right-btn" onclick="toggleDoor('right')">DR</div>
             </div>
         </div>
 
-        <!-- Camera Slide System -->
         <div id="cam-toggle" onmouseenter="toggleCams()">CAMERAS</div>
         <div id="camera-view">
-            <div class="static"></div>
-            <div style="border: 2px solid white; padding: 20px;">
-                <h2>CAMERA 1A - SHOWSTAGE</h2>
-                <button onclick="toggleCams()" style="margin-top: 20px;">CLOSE MONITOR</button>
+            <div style="padding: 50px; text-align: center;">
+                <h2>CAM 01: MAIN HALL</h2>
+                <button onclick="toggleCams()">CLOSE MONITOR</button>
             </div>
         </div>
     </div>
@@ -116,18 +114,21 @@
         let leftOpen = true;
         let rightOpen = true;
         let camsOpen = false;
+        let gameActive = false;
 
         function startGame() {
+            gameActive = true;
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
             drainPower();
         }
 
-        // Camera Panning
+        // Improved Panning Logic
         window.addEventListener('mousemove', (e) => {
-            if (camsOpen) return;
+            if (!gameActive || camsOpen) return;
             const percent = e.clientX / window.innerWidth;
-            const move = (percent * 80) - 40; // Range of movement
+            // Narrowed range (from -20 to 20) ensures the right door is always accessible
+            const move = (percent * 40) - 20; 
             document.getElementById('office').style.transform = `translateX(${-move}vw)`;
         });
 
@@ -148,7 +149,9 @@
         }
 
         function drainPower() {
-            setInterval(() => {
+            const powerLoop = setInterval(() => {
+                if (!gameActive) { clearInterval(powerLoop); return; }
+                
                 let usage = 0.1;
                 if (!leftOpen) usage += 0.4;
                 if (!rightOpen) usage += 0.4;
@@ -158,8 +161,10 @@
                 document.getElementById('power').innerText = Math.max(0, Math.floor(power));
 
                 if (power <= 0) {
-                    alert("POWER LOST");
-                    location.reload();
+                    gameActive = false;
+                    clearInterval(powerLoop);
+                    document.getElementById('game-container').style.display = 'none';
+                    document.getElementById('death-screen').style.display = 'flex';
                 }
             }, 1000);
         }
